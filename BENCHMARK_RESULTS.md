@@ -15,7 +15,6 @@ blockchain-based secure medical image storage system.
 | Go | 1.19.3 |
 | Docker | 20.10.21 |
 | Hyperledger Fabric | 2.5.0 |
-| MATLAB | R2023a |
 
 ---
 
@@ -232,14 +231,3 @@ python -m pytest tests/test_signature.py -v
 
 For blockchain performance testing, use the provided Hyperledger Fabric network configuration in `network/`.
 
----
-
-## Citation
-
-If you use these benchmark results, please cite:
-
-```
-Tuncer, S. (2026). Integration of Chaos-Based Encryption and Blockchain
-for Tamper-Proof Medical Image Storage and Authentication.
-PeerJ Computer Science.
-```

@@ -8,9 +8,9 @@ Implements the (k,n) threshold secret sharing scheme where:
 Reference:
 Shamir, A. (1979). How to share a secret. Communications of the ACM, 22(11), 612-613.
 
-For this implementation, we use (3,5) threshold as specified in the paper:
-"Integration of Chaos-Based Encryption and Blockchain for Tamper-Proof
-Medical Image Storage and Authentication"
+For this implementation, we use (3,5) threshold scheme:
+- 5 shares are distributed to authorized shareholders
+- Any 3 shares are sufficient to reconstruct the key
 """
 
 import secrets

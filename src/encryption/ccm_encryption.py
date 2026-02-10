@@ -1,9 +1,8 @@
 """
 Chaotic Cat Map (CCM) Encryption for Grayscale Images
 
-Implementation of the Arnold Cat Map for image encryption as described in:
-"Integration of Chaos-Based Encryption and Blockchain for Tamper-Proof
-Medical Image Storage and Authentication"
+Implementation of the Arnold Cat Map for chaos-based image encryption
+with permutation-diffusion architecture and 256-bit key space.
 
 The Arnold Cat Map transformation:
     x' = (x + y) mod N

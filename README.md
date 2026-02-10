@@ -1,8 +1,15 @@
-# Blockchain-Based Secure Medical Image Storage System
+# Chaos-Based Encryption with Blockchain Verification
 
-## Supplementary Materials for PeerJ Computer Science Submission
+A secure medical image storage system integrating chaotic encryption, threshold secret sharing, and blockchain-based verification.
 
-This repository contains the implementation code and configuration files for the secure medical image storage system described in the paper "Integration of Chaos-Based Encryption and Blockchain for Tamper-Proof Medical Image Storage and Authentication".
+## Overview
+
+This repository provides a complete implementation for secure medical image storage featuring:
+- **Chaotic Cat Map (CCM) Encryption** - Chaos-based image encryption with 256-bit key space
+- **Shamir's Secret Sharing** - (t,n) threshold key distribution
+- **RSA Digital Signatures** - Image authentication and integrity verification
+- **Hyperledger Fabric Integration** - Immutable audit trail and decentralized verification
+- **Blockchain-Coordinated Key Recovery** - Novel on-chain threshold enforcement protocol
 
 ## System Architecture Overview
 
@@ -238,20 +245,7 @@ pytest tests/test_encryption.py -v
 
 ## License
 
-This code is provided for academic and research purposes as supplementary material for the PeerJ Computer Science submission.
-
-## Citation
-
-If you use this code, please cite:
-
-```bibtex
-@article{tuncer2026blockchain,
-  title={Integration of Chaos-Based Encryption and Blockchain for Tamper-Proof Medical Image Storage and Authentication},
-  author={Tuncer, Sefa and ...},
-  journal={PeerJ Computer Science},
-  year={2026}
-}
-```
+This code is provided under MIT License for academic and research purposes.
 
 ## Contact
 

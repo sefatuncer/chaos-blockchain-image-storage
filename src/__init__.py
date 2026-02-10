@@ -1,18 +1,13 @@
 """
-Blockchain-Based Secure Medical Image Storage System
+Chaos-Based Encryption with Blockchain Verification
 
-This package provides the implementation for a secure medical image
-storage system using:
+This package provides secure medical image storage featuring:
 
-- Chaotic Cat Map (CCM) encryption
+- Chaotic Cat Map (CCM) encryption with 256-bit key space
 - Shamir's Secret Sharing (3,5) threshold scheme
-- RSA digital signatures
-- Hyperledger Fabric blockchain
-
-Reference:
-"Integration of Chaos-Based Encryption and Blockchain for Tamper-Proof
-Medical Image Storage and Authentication"
+- RSA-2048 digital signatures
+- Hyperledger Fabric blockchain integration
+- Blockchain-coordinated threshold key recovery protocol
 """
 
 __version__ = "1.0.0"
-__author__ = "Medical Image Security Research"

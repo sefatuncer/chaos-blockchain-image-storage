@@ -4,9 +4,8 @@ Chaotic Cat Map (CCM) Encryption for Color Images
 Extension of CCM encryption for RGB color images, where each color
 channel is encrypted independently.
 
-Reference:
-"Integration of Chaos-Based Encryption and Blockchain for Tamper-Proof
-Medical Image Storage and Authentication"
+Based on Arnold Cat Map chaos-based encryption with channel-independent
+key derivation for RGB color images.
 """
 
 import numpy as np
@@ -292,6 +291,99 @@ class ColorImageEncryption:
             uaci_values.append(uaci)
 
         return np.mean(npcr_values), np.mean(uaci_values)
+
+    def calculate_cross_channel_correlation(self, image: np.ndarray,
+                                           samples: int = 5000) -> dict:
+        """
+        Calculate cross-channel correlation coefficients (R-G, R-B, G-B).
+
+        This analysis verifies that independent channel encryption does not
+        leak information through inter-channel correlations. For secure
+        encryption, cross-channel correlations should be near zero.
+
+        Args:
+            image: Color image array (H x W x 3)
+            samples: Number of random pixel samples
+
+        Returns:
+            Dictionary with cross-channel correlation values:
+            {
+                'R-G': float,  # Red-Green correlation
+                'R-B': float,  # Red-Blue correlation
+                'G-B': float,  # Green-Blue correlation
+                'mean': float  # Mean absolute correlation
+            }
+        """
+        h, w = image.shape[:2]
+
+        # Random sample positions
+        x_pos = np.random.randint(0, w, samples)
+        y_pos = np.random.randint(0, h, samples)
+
+        # Extract channel values at sampled positions
+        r_values = image[y_pos, x_pos, 0].astype(float)
+        g_values = image[y_pos, x_pos, 1].astype(float)
+        b_values = image[y_pos, x_pos, 2].astype(float)
+
+        # Calculate cross-channel correlations
+        rg_corr = np.corrcoef(r_values, g_values)[0, 1]
+        rb_corr = np.corrcoef(r_values, b_values)[0, 1]
+        gb_corr = np.corrcoef(g_values, b_values)[0, 1]
+
+        mean_abs_corr = np.mean([abs(rg_corr), abs(rb_corr), abs(gb_corr)])
+
+        return {
+            'R-G': rg_corr,
+            'R-B': rb_corr,
+            'G-B': gb_corr,
+            'mean': mean_abs_corr
+        }
+
+    def full_security_analysis(self, original: np.ndarray,
+                               encrypted: np.ndarray) -> dict:
+        """
+        Perform comprehensive security analysis including cross-channel correlations.
+
+        Args:
+            original: Original color image
+            encrypted: Encrypted color image
+
+        Returns:
+            Complete security metrics dictionary
+        """
+        # Entropy
+        r_ent, g_ent, b_ent, avg_ent = self.calculate_entropy(encrypted)
+
+        # Intra-channel correlations
+        h_corr = self.calculate_correlation(encrypted, 'horizontal')
+        v_corr = self.calculate_correlation(encrypted, 'vertical')
+        d_corr = self.calculate_correlation(encrypted, 'diagonal')
+
+        # Cross-channel correlations
+        orig_cross = self.calculate_cross_channel_correlation(original)
+        enc_cross = self.calculate_cross_channel_correlation(encrypted)
+
+        # NPCR/UACI
+        npcr, uaci = self.calculate_npcr_uaci(original, encrypted)
+
+        return {
+            'entropy': {
+                'R': r_ent, 'G': g_ent, 'B': b_ent, 'avg': avg_ent
+            },
+            'intra_channel_correlation': {
+                'horizontal': {'R': h_corr[0], 'G': h_corr[1], 'B': h_corr[2], 'avg': h_corr[3]},
+                'vertical': {'R': v_corr[0], 'G': v_corr[1], 'B': v_corr[2], 'avg': v_corr[3]},
+                'diagonal': {'R': d_corr[0], 'G': d_corr[1], 'B': d_corr[2], 'avg': d_corr[3]}
+            },
+            'cross_channel_correlation': {
+                'original': orig_cross,
+                'encrypted': enc_cross
+            },
+            'differential': {
+                'npcr': npcr,
+                'uaci': uaci
+            }
+        }
 
 
 if __name__ == "__main__":

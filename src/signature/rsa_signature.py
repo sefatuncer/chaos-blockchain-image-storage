@@ -6,9 +6,8 @@ integrity verification in the blockchain-based medical image storage system.
 
 Uses SHA-256 for hashing and RSA-2048 for signing.
 
-Reference:
-"Integration of Chaos-Based Encryption and Blockchain for Tamper-Proof
-Medical Image Storage and Authentication"
+Provides RSA-2048 signatures with SHA-256 hashing for image
+authentication in blockchain-based storage systems.
 """
 
 import hashlib
