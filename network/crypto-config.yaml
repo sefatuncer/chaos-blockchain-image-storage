@@ -1,0 +1,49 @@
+# Hyperledger Fabric Cryptographic Material Configuration
+# Medical Image Storage System
+#
+# This file defines the cryptographic identities for all network participants
+# including orderers, peers, and users.
+
+OrdererOrgs:
+  - Name: OrdererOrg
+    Domain: medical-blockchain.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+        SANS:
+          - localhost
+          - 127.0.0.1
+
+PeerOrgs:
+  - Name: Hospital1
+    Domain: hospital1.medical-blockchain.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 3  # Admin + 2 regular users (radiologists, etc.)
+
+  - Name: Hospital2
+    Domain: hospital2.medical-blockchain.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 3
+
+  - Name: LabOrg
+    Domain: lab.medical-blockchain.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 2
