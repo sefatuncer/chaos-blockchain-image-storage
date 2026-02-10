@@ -1,10 +1,10 @@
 # Chaos-Based Encryption with Blockchain Verification
 
-A secure medical image storage system integrating chaotic encryption, threshold secret sharing, and blockchain-based verification.
+A secure image storage and verification system integrating chaotic encryption, threshold secret sharing, and blockchain-based verification.
 
 ## Overview
 
-This repository provides a complete implementation for secure medical image storage featuring:
+This repository provides a complete implementation for secure image storage and verification featuring:
 - **Chaotic Cat Map (CCM) Encryption** - Chaos-based image encryption with 256-bit key space
 - **Shamir's Secret Sharing** - (t,n) threshold key distribution
 - **RSA Digital Signatures** - Image authentication and integrity verification
@@ -15,7 +15,7 @@ This repository provides a complete implementation for secure medical image stor
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         MEDICAL IMAGE SECURITY SYSTEM                        │
+│                         SECURE IMAGE VERIFICATION SYSTEM                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │   ┌──────────────┐    ┌──────────────┐    ┌──────────────────────────────┐  │
@@ -32,7 +32,7 @@ This repository provides a complete implementation for secure medical image stor
 │                              ▼                          ▼                    │
 │                    ┌──────────────┐           ┌──────────────────┐          │
 │                    │   Shamir's   │           │  RSA Signature   │          │
-│                    │   (7,10) SSS  │           │                  │          │
+│                    │   (3,5) SSS  │           │                  │          │
 │                    └──────────────┘           └──────────────────┘          │
 │                              │                          │                    │
 │                              ▼                          ▼                    │
@@ -45,48 +45,6 @@ This repository provides a complete implementation for secure medical image stor
 │              └───────────────────────────────────────────────┘              │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-```
-
-## Directory Structure
-
-```
-supplementary-files/
-├── README.md                    # This file
-├── requirements.txt             # Python dependencies
-├── src/
-│   ├── encryption/
-│   │   ├── __init__.py
-│   │   ├── ccm_encryption.py   # Chaotic Cat Map encryption
-│   │   └── ccm_color.py        # Color image encryption
-│   ├── secret_sharing/
-│   │   ├── __init__.py
-│   │   └── shamir.py           # Shamir's Secret Sharing (7,10)
-│   ├── signature/
-│   │   ├── __init__.py
-│   │   └── rsa_signature.py    # RSA digital signatures
-│   └── blockchain/
-│       ├── __init__.py
-│       └── fabric_client.py    # Hyperledger Fabric client
-├── chaincode/
-│   ├── go.mod
-│   ├── go.sum
-│   └── imagestore.go           # Smart contract (Go)
-├── network/
-│   ├── configtx.yaml           # Channel configuration
-│   ├── crypto-config.yaml      # Cryptographic material config
-│   └── docker-compose.yaml     # Network deployment
-├── docker/
-│   ├── Dockerfile.peer
-│   ├── Dockerfile.orderer
-│   └── Dockerfile.ca
-├── tests/
-│   ├── test_encryption.py
-│   ├── test_secret_sharing.py
-│   └── test_signature.py
-└── examples/
-    ├── encrypt_image.py
-    ├── store_to_blockchain.py
-    └── verify_image.py
 ```
 
 ## Prerequisites
@@ -134,8 +92,8 @@ ccm.save_encrypted(encrypted, "encrypted_image.png")
 ```python
 from src.secret_sharing.shamir import ShamirSecretSharing
 
-# Initialize with (7,10) threshold
-sss = ShamirSecretSharing(threshold=7, num_shares=10)
+# Initialize with (3,5) threshold
+sss = ShamirSecretSharing(threshold=3, num_shares=5)
 
 # Split the encryption key
 shares = sss.split_secret(key)
@@ -166,7 +124,7 @@ from src.blockchain.fabric_client import FabricClient
 
 # Connect to Hyperledger Fabric network
 client = FabricClient(
-    channel_name="medical-images",
+    channel_name="secure-images",
     chaincode_name="imagestore"
 )
 
@@ -192,7 +150,7 @@ cryptogen generate --config=./crypto-config.yaml
 
 ```bash
 configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./channel-artifacts/genesis.block
-configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID medical-images
+configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID secure-images
 ```
 
 ### 3. Start the Network
@@ -206,8 +164,8 @@ docker-compose -f docker-compose.yaml up -d
 ```bash
 peer lifecycle chaincode package imagestore.tar.gz --path ./chaincode --lang golang --label imagestore_1.0
 peer lifecycle chaincode install imagestore.tar.gz
-peer lifecycle chaincode approveformyorg --channelID medical-images --name imagestore --version 1.0 --package-id $PACKAGE_ID --sequence 1
-peer lifecycle chaincode commit --channelID medical-images --name imagestore --version 1.0 --sequence 1
+peer lifecycle chaincode approveformyorg --channelID secure-images --name imagestore --version 1.0 --package-id $PACKAGE_ID --sequence 1
+peer lifecycle chaincode commit --channelID secure-images --name imagestore --version 1.0 --sequence 1
 ```
 
 ## Security Parameters
@@ -217,7 +175,7 @@ peer lifecycle chaincode commit --channelID medical-images --name imagestore --v
 | CCM Iterations | 10 | Number of Cat Map iterations |
 | RSA Key Size | 2048 bits | Digital signature key size |
 | SHA Hash | SHA-256 | Hashing algorithm |
-| SSS Threshold | (7,10) | 7 of 10 shares required |
+| SSS Threshold | (3,5) | 3 of 5 shares required |
 | Fabric Endorsement | 2 of 3 | Required endorsements |
 
 ## Performance Metrics
