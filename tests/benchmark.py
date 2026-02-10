@@ -313,11 +313,11 @@ class BenchmarkSuite:
         if self.results['secret_sharing']:
             sss_35 = next(
                 (r for r in self.results['secret_sharing']
-                 if r['config'] == '(3,5)' and r['key_size_bits'] == 256),
+                 if r['config'] == '(7,10)' and r['key_size_bits'] == 256),
                 None
             )
             if sss_35:
-                print(f"Secret Sharing (3,5): split={sss_35['split_time_ms']:.3f}ms, "
+                print(f"Secret Sharing (7,10): split={sss_35['split_time_ms']:.3f}ms, "
                       f"reconstruct={sss_35['reconstruct_time_ms']:.3f}ms")
 
         if self.results['signature']:

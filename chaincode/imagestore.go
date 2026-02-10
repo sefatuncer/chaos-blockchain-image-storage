@@ -217,7 +217,7 @@ func (t *ImageStoreChaincode) storeImageMetadata(stub shim.ChaincodeStubInterfac
 	metadata.UpdatedAt = metadata.CreatedAt
 	metadata.Status = "active"
 	metadata.EncryptionMethod = "CCM"
-	metadata.Threshold = "3/5"
+	metadata.Threshold = "7/10"
 
 	// Get transaction creator
 	creator, err := stub.GetCreator()

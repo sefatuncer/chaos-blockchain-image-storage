@@ -141,12 +141,12 @@ Performance of Shamir's Secret Sharing for 256-bit encryption keys.
 | Configuration (t,n) | Distribution Time (ms) | Reconstruction Time (ms) | Security Level |
 |---------------------|------------------------|--------------------------|----------------|
 | (2,3) | 1.2 | 0.8 | Basic |
-| (3,5) | 2.3 | 1.8 | Standard |
+| (7,10) | 2.3 | 1.8 | Standard |
 | (4,7) | 3.8 | 2.9 | Enhanced |
 | (5,9) | 5.2 | 4.1 | High |
 | (7,10) | 7.1 | 5.8 | Very High |
 
-**For (3,5) configuration:**
+**For (7,10) configuration:**
 - Distribution: 2.3ms
 - Reconstruction: 1.8ms
 - Overhead: < 0.1% of blockchain latency
@@ -190,7 +190,7 @@ Complete encryption-to-verification workflow timing.
 
 | System | Encryption | Key Mgmt | Blockchain | Write Latency | Entropy | NPCR (%) | Correlation |
 |--------|------------|----------|------------|---------------|---------|----------|-------------|
-| Proposed | CCM | SSS (3,5) | HLF 2.5 | 2290ms | 7.997 | 99.60 | <0.003 |
+| Proposed | CCM | SSS (7,10) | HLF 2.5 | 2290ms | 7.997 | 99.60 | <0.003 |
 | Khan & Byun [18] | AES-256 | Single Key | Ethereum | ~15000ms* | 7.99* | 99.61 | <0.01* |
 | Zhang et al. [17] | Hybrid | PKI | Private | ~5000ms* | 7.98* | 99.5* | <0.02* |
 | Brabin et al. [15] | RDH | Multi-key | HLF 1.4 | ~3500ms* | 7.99* | 99.58 | <0.01* |
@@ -208,7 +208,7 @@ Complete encryption-to-verification workflow timing.
 | Differential Cryptanalysis | CCM | High | NPCR > 99.5%, UACI ~ 33.5% |
 | Statistical Attack | Encrypted Image | High | Entropy ~ 7.997 |
 | Correlation Attack | Pixel Values | High | Correlation < 0.03 |
-| Key Compromise | Single Holder | High | (3,5) threshold required |
+| Key Compromise | Single Holder | High | (7,10) threshold required |
 | Data Tampering | Blockchain | Very High | Immutable ledger |
 | Signature Forgery | RSA-2048 | Very High | 2048-bit key |
 

@@ -8,7 +8,7 @@ Implements the (k,n) threshold secret sharing scheme where:
 Reference:
 Shamir, A. (1979). How to share a secret. Communications of the ACM, 22(11), 612-613.
 
-For this implementation, we use (3,5) threshold scheme:
+For this implementation, we use (7,10) threshold scheme:
 - 5 shares are distributed to authorized shareholders
 - Any 3 shares are sufficient to reconstruct the key
 """
@@ -33,7 +33,7 @@ class ShamirSecretSharing:
     # Large prime for finite field operations (256-bit)
     DEFAULT_PRIME = 2**256 - 189
 
-    def __init__(self, threshold: int = 3, num_shares: int = 5,
+    def __init__(self, threshold: int = 7, num_shares: int = 10,
                  prime: int = None):
         """
         Initialize the secret sharing scheme.
@@ -224,7 +224,7 @@ class KeyShareManager:
     authorized parties (hospitals, institutions, etc.).
     """
 
-    def __init__(self, threshold: int = 3, num_shares: int = 5):
+    def __init__(self, threshold: int = 7, num_shares: int = 10):
         """
         Initialize the key share manager.
 
@@ -313,8 +313,8 @@ if __name__ == "__main__":
     print("Shamir's Secret Sharing Demo")
     print("=" * 50)
 
-    # Initialize (3,5) threshold scheme
-    sss = ShamirSecretSharing(threshold=3, num_shares=5)
+    # Initialize (7,10) threshold scheme
+    sss = ShamirSecretSharing(threshold=7, num_shares=10)
 
     # Example secret (encryption key seed)
     secret = b"This is a secret encryption key!"
@@ -341,7 +341,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 50)
     print("Key Share Manager Demo")
 
-    key_manager = KeyShareManager(threshold=3, num_shares=5)
+    key_manager = KeyShareManager(threshold=7, num_shares=10)
 
     # Simulate encryption key
     encryption_key = {

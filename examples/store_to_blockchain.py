@@ -53,8 +53,8 @@ def main():
     print(f"  - Iterations: {encryption_key['iterations']}")
 
     # Step 2: Split encryption key using Shamir's Secret Sharing
-    print("\n[Step 2] Splitting encryption key with (3,5) threshold...")
-    sss = ShamirSecretSharing(threshold=3, num_shares=5)
+    print("\n[Step 2] Splitting encryption key with (7,10) threshold...")
+    sss = ShamirSecretSharing(threshold=7, num_shares=10)
 
     # Convert seed to bytes for sharing
     seed_bytes = encryption_key['seed'].to_bytes(32, byteorder='big')
@@ -95,7 +95,7 @@ def main():
         metadata={
             'iterations': encryption_key['iterations'],
             'encryption_method': 'CCM',
-            'threshold': '3/5',
+            'threshold': '7/10',
             'original_hash': encryption_key['hash']
         }
     )

@@ -32,7 +32,7 @@ This repository provides a complete implementation for secure medical image stor
 │                              ▼                          ▼                    │
 │                    ┌──────────────┐           ┌──────────────────┐          │
 │                    │   Shamir's   │           │  RSA Signature   │          │
-│                    │   (3,5) SSS  │           │                  │          │
+│                    │   (7,10) SSS  │           │                  │          │
 │                    └──────────────┘           └──────────────────┘          │
 │                              │                          │                    │
 │                              ▼                          ▼                    │
@@ -60,7 +60,7 @@ supplementary-files/
 │   │   └── ccm_color.py        # Color image encryption
 │   ├── secret_sharing/
 │   │   ├── __init__.py
-│   │   └── shamir.py           # Shamir's Secret Sharing (3,5)
+│   │   └── shamir.py           # Shamir's Secret Sharing (7,10)
 │   ├── signature/
 │   │   ├── __init__.py
 │   │   └── rsa_signature.py    # RSA digital signatures
@@ -134,8 +134,8 @@ ccm.save_encrypted(encrypted, "encrypted_image.png")
 ```python
 from src.secret_sharing.shamir import ShamirSecretSharing
 
-# Initialize with (3,5) threshold
-sss = ShamirSecretSharing(threshold=3, num_shares=5)
+# Initialize with (7,10) threshold
+sss = ShamirSecretSharing(threshold=7, num_shares=10)
 
 # Split the encryption key
 shares = sss.split_secret(key)
@@ -217,7 +217,7 @@ peer lifecycle chaincode commit --channelID medical-images --name imagestore --v
 | CCM Iterations | 10 | Number of Cat Map iterations |
 | RSA Key Size | 2048 bits | Digital signature key size |
 | SHA Hash | SHA-256 | Hashing algorithm |
-| SSS Threshold | (3,5) | 3 of 5 shares required |
+| SSS Threshold | (7,10) | 7 of 10 shares required |
 | Fabric Endorsement | 2 of 3 | Required endorsements |
 
 ## Performance Metrics

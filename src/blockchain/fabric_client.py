@@ -555,7 +555,7 @@ class MedicalImageBlockchain:
             'patient_id': patient_id,
             'encryption_algorithm': 'CCM',
             'iterations': encryption_key.get('iterations', 10),
-            'threshold': '3/5',
+            'threshold': '7/10',
             'image_hash': image_hash
         }
 
