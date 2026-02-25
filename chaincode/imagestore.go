@@ -4,17 +4,23 @@ Medical Image Storage Chaincode for Hyperledger Fabric
 This chaincode implements the smart contract for secure medical image
 metadata storage and verification on Hyperledger Fabric blockchain.
 
-NOVEL CONTRIBUTION: Blockchain-Coordinated Threshold Key Recovery Protocol
+NOVEL CONTRIBUTION 1: Blockchain-Coordinated Threshold Key Recovery Protocol
 Unlike traditional Shamir's Secret Sharing where key reconstruction happens
 off-chain without verification, this smart contract provides:
-1. On-chain threshold enforcement - Smart contract verifies t-of-n policy
+1. On-chain threshold enforcement - Smart contract verifies t-of-n policy (3/5)
 2. Decentralized access control - No single party controls reconstruction
 3. Immutable audit trail - All recovery attempts are logged on blockchain
 4. Share revocation support - Compromised shares can be invalidated on-chain
 5. Time-locked recovery - Optional delay for security-critical operations
 
-Implements standard image storage operations plus the novel
-blockchain-coordinated threshold key recovery protocol.
+NOVEL CONTRIBUTION 2: Key Rotation Protocol
+Implements blockchain-coordinated key rotation with:
+1. Epoch management - Tracks current key epoch for each image
+2. Multi-party approval - Requires multiple approvals before rotation
+3. Forward/backward secrecy - Old keys cannot derive new keys and vice versa
+4. Audit trail - All rotation events logged on blockchain
+
+Implements standard image storage operations plus novel protocols.
 
 Functions:
 - StoreImageMetadata: Store encrypted image metadata
@@ -23,11 +29,15 @@ Functions:
 - GetImageHistory: Get transaction history
 - UpdateImageStatus: Update image status (active/archived/revoked)
 - RecordAccess: Log access events
-- SubmitKeyShare: Submit a key share for recovery (NEW)
-- InitiateKeyRecovery: Start threshold-based key recovery process (NEW)
-- CheckRecoveryStatus: Check if threshold is met for recovery (NEW)
-- RevokeShare: Revoke a compromised share (NEW)
-- GetRecoveryAuditLog: Get all recovery attempts for an image (NEW)
+- SubmitKeyShare: Submit a key share for recovery
+- InitiateKeyRecovery: Start threshold-based key recovery process
+- CheckRecoveryStatus: Check if threshold is met for recovery
+- RevokeShare: Revoke a compromised share
+- GetRecoveryAuditLog: Get all recovery attempts for an image
+- InitiateRotation: Start a key rotation process (NEW)
+- ApproveRotation: Approve a pending rotation (NEW)
+- FinalizeRotation: Complete rotation and update epoch (NEW)
+- GetCurrentEpoch: Get current key epoch for an image (NEW)
 */
 
 package main
@@ -175,6 +185,15 @@ func (t *ImageStoreChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Resp
 		return t.revokeShare(stub, args)
 	case "GetRecoveryAuditLog":
 		return t.getRecoveryAuditLog(stub, args)
+	// NOVEL: Key Rotation Protocol
+	case "InitiateRotation":
+		return t.initiateRotation(stub, args)
+	case "ApproveRotation":
+		return t.approveRotation(stub, args)
+	case "FinalizeRotation":
+		return t.finalizeRotation(stub, args)
+	case "GetCurrentEpoch":
+		return t.getCurrentEpoch(stub, args)
 	default:
 		return shim.Error(fmt.Sprintf("Unknown function: %s", function))
 	}
@@ -217,7 +236,7 @@ func (t *ImageStoreChaincode) storeImageMetadata(stub shim.ChaincodeStubInterfac
 	metadata.UpdatedAt = metadata.CreatedAt
 	metadata.Status = "active"
 	metadata.EncryptionMethod = "CCM"
-	metadata.Threshold = "7/10"
+	metadata.Threshold = "3/5"
 
 	// Get transaction creator
 	creator, err := stub.GetCreator()
@@ -814,6 +833,242 @@ func (t *ImageStoreChaincode) createRecoveryAuditEntry(stub shim.ChaincodeStubIn
 	entryBytes, _ := json.Marshal(entry)
 	auditKey, _ := stub.CreateCompositeKey("recovery_audit", []string{imageID, entry.Timestamp})
 	stub.PutState(auditKey, entryBytes)
+}
+
+// ============================================================================
+// KEY ROTATION PROTOCOL - Blockchain-Coordinated Key Epoch Management
+// ============================================================================
+
+// KeyRotationSession represents an ongoing key rotation process
+type KeyRotationSession struct {
+	RotationID      string             `json:"rotation_id"`
+	ImageID         string             `json:"image_id"`
+	OldEpoch        int                `json:"old_epoch"`
+	NewEpoch        int                `json:"new_epoch"`
+	InitiatedBy     string             `json:"initiated_by"`
+	InitiatedAt     string             `json:"initiated_at"`
+	Status          string             `json:"status"` // initiated, pending_approval, approved, finalized, cancelled
+	Approvals       []RotationApproval `json:"approvals"`
+	RequiredApprovals int              `json:"required_approvals"`
+	NewKeyHash      string             `json:"new_key_hash,omitempty"`
+	FinalizedAt     string             `json:"finalized_at,omitempty"`
+}
+
+// RotationApproval represents an approval for key rotation
+type RotationApproval struct {
+	ApproverID  string `json:"approver_id"`
+	ApprovedAt  string `json:"approved_at"`
+	TxID        string `json:"tx_id"`
+}
+
+// EpochInfo tracks the current epoch for an image
+type EpochInfo struct {
+	ImageID      string `json:"image_id"`
+	CurrentEpoch int    `json:"current_epoch"`
+	LastRotation string `json:"last_rotation"`
+	RotationCount int   `json:"rotation_count"`
+}
+
+// initiateRotation starts a new key rotation process
+func (t *ImageStoreChaincode) initiateRotation(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	if len(args) < 2 {
+		return shim.Error("Expecting 2 arguments: imageID, requiredApprovals")
+	}
+
+	imageID := args[0]
+	requiredApprovals := 2
+	fmt.Sscanf(args[1], "%d", &requiredApprovals)
+
+	// Verify image exists
+	imageBytes, err := stub.GetState(imageID)
+	if err != nil || imageBytes == nil {
+		return shim.Error(fmt.Sprintf("Image %s not found", imageID))
+	}
+
+	// Get current epoch
+	epochKey, _ := stub.CreateCompositeKey("epoch", []string{imageID})
+	epochBytes, _ := stub.GetState(epochKey)
+
+	currentEpoch := 0
+	if epochBytes != nil {
+		var epochInfo EpochInfo
+		json.Unmarshal(epochBytes, &epochInfo)
+		currentEpoch = epochInfo.CurrentEpoch
+	}
+
+	// Generate rotation ID
+	rotationID := fmt.Sprintf("rotation-%s-%s", imageID, stub.GetTxID()[:8])
+
+	// Create rotation session
+	session := KeyRotationSession{
+		RotationID:        rotationID,
+		ImageID:           imageID,
+		OldEpoch:          currentEpoch,
+		NewEpoch:          currentEpoch + 1,
+		InitiatedBy:       string(stub.GetCreator()[:20]),
+		InitiatedAt:       time.Now().Format(time.RFC3339),
+		Status:            "initiated",
+		Approvals:         []RotationApproval{},
+		RequiredApprovals: requiredApprovals,
+	}
+
+	sessionBytes, _ := json.Marshal(session)
+	sessionKey, _ := stub.CreateCompositeKey("rotation_session", []string{imageID, rotationID})
+	stub.PutState(sessionKey, sessionBytes)
+
+	// Audit entry
+	t.createRecoveryAuditEntry(stub, rotationID, imageID, "rotation_initiated",
+		session.InitiatedBy, fmt.Sprintf("Key rotation initiated: epoch %d -> %d", currentEpoch, currentEpoch+1))
+
+	stub.SetEvent("KeyRotationInitiated", sessionBytes)
+
+	return shim.Success(sessionBytes)
+}
+
+// approveRotation allows a party to approve a pending rotation
+func (t *ImageStoreChaincode) approveRotation(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	if len(args) < 2 {
+		return shim.Error("Expecting 2 arguments: imageID, rotationID")
+	}
+
+	imageID := args[0]
+	rotationID := args[1]
+
+	// Get rotation session
+	sessionKey, _ := stub.CreateCompositeKey("rotation_session", []string{imageID, rotationID})
+	sessionBytes, err := stub.GetState(sessionKey)
+	if err != nil || sessionBytes == nil {
+		return shim.Error("Rotation session not found")
+	}
+
+	var session KeyRotationSession
+	json.Unmarshal(sessionBytes, &session)
+
+	// Check status
+	if session.Status != "initiated" && session.Status != "pending_approval" {
+		return shim.Error(fmt.Sprintf("Cannot approve rotation in status: %s", session.Status))
+	}
+
+	approverID := string(stub.GetCreator()[:20])
+
+	// Check if already approved by this party
+	for _, approval := range session.Approvals {
+		if approval.ApproverID == approverID {
+			return shim.Error("Already approved by this party")
+		}
+	}
+
+	// Check if approver is the initiator
+	if approverID == session.InitiatedBy {
+		return shim.Error("Initiator cannot approve their own rotation")
+	}
+
+	// Add approval
+	approval := RotationApproval{
+		ApproverID: approverID,
+		ApprovedAt: time.Now().Format(time.RFC3339),
+		TxID:       stub.GetTxID(),
+	}
+	session.Approvals = append(session.Approvals, approval)
+	session.Status = "pending_approval"
+
+	// Check if threshold met
+	if len(session.Approvals) >= session.RequiredApprovals {
+		session.Status = "approved"
+	}
+
+	sessionBytes, _ = json.Marshal(session)
+	stub.PutState(sessionKey, sessionBytes)
+
+	// Audit entry
+	t.createRecoveryAuditEntry(stub, rotationID, imageID, "rotation_approved",
+		approverID, fmt.Sprintf("Rotation approved (%d/%d)", len(session.Approvals), session.RequiredApprovals))
+
+	stub.SetEvent("KeyRotationApproved", sessionBytes)
+
+	return shim.Success(sessionBytes)
+}
+
+// finalizeRotation completes the rotation and updates the epoch
+func (t *ImageStoreChaincode) finalizeRotation(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	if len(args) < 3 {
+		return shim.Error("Expecting 3 arguments: imageID, rotationID, newKeyHash")
+	}
+
+	imageID := args[0]
+	rotationID := args[1]
+	newKeyHash := args[2]
+
+	// Get rotation session
+	sessionKey, _ := stub.CreateCompositeKey("rotation_session", []string{imageID, rotationID})
+	sessionBytes, err := stub.GetState(sessionKey)
+	if err != nil || sessionBytes == nil {
+		return shim.Error("Rotation session not found")
+	}
+
+	var session KeyRotationSession
+	json.Unmarshal(sessionBytes, &session)
+
+	// Check status
+	if session.Status != "approved" {
+		return shim.Error(fmt.Sprintf("Rotation must be approved before finalization. Current status: %s", session.Status))
+	}
+
+	// Update session
+	session.Status = "finalized"
+	session.FinalizedAt = time.Now().Format(time.RFC3339)
+	session.NewKeyHash = newKeyHash
+
+	sessionBytes, _ = json.Marshal(session)
+	stub.PutState(sessionKey, sessionBytes)
+
+	// Update epoch info
+	epochKey, _ := stub.CreateCompositeKey("epoch", []string{imageID})
+	epochInfo := EpochInfo{
+		ImageID:       imageID,
+		CurrentEpoch:  session.NewEpoch,
+		LastRotation:  session.FinalizedAt,
+		RotationCount: session.NewEpoch,
+	}
+	epochBytes, _ := json.Marshal(epochInfo)
+	stub.PutState(epochKey, epochBytes)
+
+	// Audit entry
+	t.createRecoveryAuditEntry(stub, rotationID, imageID, "rotation_finalized",
+		string(stub.GetCreator()[:20]), fmt.Sprintf("Key rotation finalized: new epoch %d", session.NewEpoch))
+
+	stub.SetEvent("KeyRotationFinalized", sessionBytes)
+
+	return shim.Success(sessionBytes)
+}
+
+// getCurrentEpoch returns the current epoch for an image
+func (t *ImageStoreChaincode) getCurrentEpoch(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	if len(args) < 1 {
+		return shim.Error("Expecting 1 argument: imageID")
+	}
+
+	imageID := args[0]
+
+	epochKey, _ := stub.CreateCompositeKey("epoch", []string{imageID})
+	epochBytes, err := stub.GetState(epochKey)
+
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to get epoch: %s", err.Error()))
+	}
+
+	if epochBytes == nil {
+		// Return default epoch 0
+		defaultEpoch := EpochInfo{
+			ImageID:       imageID,
+			CurrentEpoch:  0,
+			LastRotation:  "",
+			RotationCount: 0,
+		}
+		epochBytes, _ = json.Marshal(defaultEpoch)
+	}
+
+	return shim.Success(epochBytes)
 }
 
 // ============================================================================

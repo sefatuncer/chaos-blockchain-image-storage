@@ -1,9 +1,26 @@
 """
-Shamir's Secret Sharing Module
+Secret Sharing Module
 
-Implements (k,n) threshold secret sharing scheme for secure key distribution.
+Implements:
+- Shamir's (k,n) threshold secret sharing scheme for secure key distribution
+- Adaptive Threshold Algorithm (ATA) for dynamic threshold adjustment
 """
 
-from .shamir import ShamirSecretSharing
+from .shamir import ShamirSecretSharing, KeyShareManager
+from .adaptive_threshold import (
+    AdaptiveThresholdAlgorithm,
+    AccessContext,
+    ThresholdDecision,
+    RiskLevel,
+    ATASecurityVerifier
+)
 
-__all__ = ['ShamirSecretSharing']
+__all__ = [
+    'ShamirSecretSharing',
+    'KeyShareManager',
+    'AdaptiveThresholdAlgorithm',
+    'AccessContext',
+    'ThresholdDecision',
+    'RiskLevel',
+    'ATASecurityVerifier'
+]

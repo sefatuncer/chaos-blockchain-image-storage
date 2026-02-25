@@ -11,15 +11,36 @@ Includes:
   * Bidirectional diffusion
   * Image-salted chaotic sequences
   * Round-specific key derivation
+- C4 Protocol: Cross-Channel Chaotic Coupling for color images
+- Key Rotation: Secure key rotation with forward/backward secrecy
 """
 
 from .ccm_encryption import ChaoticCatMapEncryption
 from .ccm_color import ColorImageEncryption
 from .eccm_encryption import EnhancedChaoticCatMap, EnhancedColorEncryption
+from .c4_protocol import CrossChannelChaoticCoupling, compare_c4_vs_independent
+from .key_rotation import (
+    KeyRotationManager,
+    RotationRequest,
+    RotationStatus,
+    ShareUpdateProof,
+    RotationSecurityVerifier
+)
 
 __all__ = [
+    # Standard CCM
     'ChaoticCatMapEncryption',
     'ColorImageEncryption',
+    # Enhanced CCM
     'EnhancedChaoticCatMap',
-    'EnhancedColorEncryption'
+    'EnhancedColorEncryption',
+    # C4 Protocol
+    'CrossChannelChaoticCoupling',
+    'compare_c4_vs_independent',
+    # Key Rotation
+    'KeyRotationManager',
+    'RotationRequest',
+    'RotationStatus',
+    'ShareUpdateProof',
+    'RotationSecurityVerifier'
 ]
