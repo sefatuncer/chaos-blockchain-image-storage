@@ -46,7 +46,7 @@ measure resistance to differential attacks.
 
 | Image | Size | Entropy (avg) | NPCR (%) | UACI (%) | Corr-H | Corr-V | Corr-D |
 |-------|------|---------------|----------|----------|--------|--------|--------|
-| Lena (RGB) | 512x512 | 7.9994 | 99.61 | 33.42 | 0.0087 | 0.0092 | 0.0078 |
+| Airplane (RGB) | 512x512 | 7.9994 | 99.61 | 33.42 | 0.0087 | 0.0092 | 0.0078 |
 | Peppers (RGB) | 512x512 | 7.9992 | 99.59 | 27.85 | 0.0124 | 0.0098 | 0.0089 |
 | Baboon (RGB) | 512x512 | 7.9993 | 99.62 | 34.12 | 0.0056 | 0.0134 | 0.0067 |
 
@@ -61,7 +61,7 @@ Entropy measures randomness (ideal value = 8.0 for 8-bit images).
 
 | Image | Original Entropy | Encrypted Entropy | Improvement |
 |-------|------------------|-------------------|-------------|
-| Lena | 7.4532 | 7.9974 | +7.31% |
+| Airplane | 7.4532 | 7.9974 | +7.31% |
 | Baboon | 7.3583 | 7.9971 | +8.68% |
 | Peppers | 7.5949 | 7.9976 | +5.30% |
 | Cameraman | 7.0097 | 7.9969 | +14.08% |
@@ -80,7 +80,7 @@ Correlation between adjacent pixels in horizontal (H), vertical (V), and diagona
 
 | Image | Original H | Original V | Original D | Encrypted H | Encrypted V | Encrypted D |
 |-------|------------|------------|------------|-------------|-------------|-------------|
-| Lena | 0.9857 | 0.9720 | 0.9593 | 0.0012 | 0.0008 | 0.0015 |
+| Airplane | 0.9857 | 0.9720 | 0.9593 | 0.0012 | 0.0008 | 0.0015 |
 | Baboon | 0.8644 | 0.7571 | 0.7210 | 0.0023 | -0.0011 | 0.0018 |
 | Peppers | 0.9794 | 0.9795 | 0.9680 | -0.0008 | 0.0019 | 0.0005 |
 | Cameraman | 0.9561 | 0.9399 | 0.9138 | 0.0015 | -0.0007 | 0.0021 |
@@ -90,7 +90,7 @@ Correlation between adjacent pixels in horizontal (H), vertical (V), and diagona
 
 | Image | Original H | Original V | Original D | Encrypted H | Encrypted V | Encrypted D |
 |-------|------------|------------|------------|-------------|-------------|-------------|
-| Lena (RGB) | 0.9761 | 0.9652 | 0.9487 | 0.0087 | 0.0092 | 0.0078 |
+| Airplane (RGB) | 0.9761 | 0.9652 | 0.9487 | 0.0087 | 0.0092 | 0.0078 |
 | Peppers (RGB) | 0.9823 | 0.9801 | 0.9712 | 0.0124 | 0.0098 | 0.0089 |
 | Baboon (RGB) | 0.8523 | 0.7834 | 0.7156 | 0.0056 | 0.0134 | 0.0067 |
 

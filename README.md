@@ -1,51 +1,68 @@
-# Chaos-Based Encryption with Blockchain Verification
+# Chaotic Image Encryption and Verification with Blockchain Coordinated Threshold Secret Sharing
 
-A secure image storage and verification system integrating chaotic encryption, threshold secret sharing, and blockchain-based verification.
+A secure image storage and verification system integrating chaotic encryption, threshold secret sharing, digital signatures and Hyperledger Fabric blockchain verification.
+
+**Associated Paper:** Tuncer, S. & Karakuzu, C. (2025). *Chaotic Image Encryption and Verification with Blockchain Coordinated Threshold Secret Sharing.* PeerJ Computer Science (under review).
 
 ## Overview
 
 This repository provides a complete implementation for secure image storage and verification featuring:
 - **Chaotic Cat Map (CCM) Encryption** - Chaos-based image encryption with 256-bit key space
+- **Cross-Channel Chaotic Coupling (C4) Protocol** - Inter-channel dependency for color image encryption
 - **Shamir's Secret Sharing** - (t,n) threshold key distribution
-- **RSA Digital Signatures** - Image authentication and integrity verification
+- **Adaptive Threshold Algorithm (ATA)** - Dynamic risk-based threshold adjustment
+- **RSA-2048 Digital Signatures** - Image authentication and integrity verification
 - **Hyperledger Fabric Integration** - Immutable audit trail and decentralized verification
-- **Blockchain-Coordinated Key Recovery** - Novel on-chain threshold enforcement protocol
+- **On-Chain Key Evolution** - Blockchain-coordinated key rotation without share redistribution
 
 ## System Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         SECURE IMAGE VERIFICATION SYSTEM                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   ┌──────────────┐    ┌──────────────┐    ┌──────────────────────────────┐  │
-│   │   Original   │───▶│     CCM      │───▶│    Encrypted Image          │  │
-│   │    Image     │    │  Encryption  │    │                              │  │
-│   └──────────────┘    └──────────────┘    └──────────────────────────────┘  │
-│                              │                          │                    │
-│                              ▼                          ▼                    │
-│                    ┌──────────────┐           ┌──────────────────┐          │
-│                    │  Encryption  │           │    SHA-256       │          │
-│                    │     Key      │           │     Hash         │          │
-│                    └──────────────┘           └──────────────────┘          │
-│                              │                          │                    │
-│                              ▼                          ▼                    │
-│                    ┌──────────────┐           ┌──────────────────┐          │
-│                    │   Shamir's   │           │  RSA Signature   │          │
-│                    │   (3,5) SSS  │           │                  │          │
-│                    └──────────────┘           └──────────────────┘          │
-│                              │                          │                    │
-│                              ▼                          ▼                    │
-│              ┌───────────────────────────────────────────────┐              │
-│              │          HYPERLEDGER FABRIC BLOCKCHAIN         │              │
-│              │  ┌─────────┐  ┌─────────┐  ┌─────────────────┐│              │
-│              │  │  Peer   │  │ Orderer │  │  Smart Contract ││              │
-│              │  │  Nodes  │  │ Service │  │   (Chaincode)   ││              │
-│              │  └─────────┘  └─────────┘  └─────────────────┘│              │
-│              └───────────────────────────────────────────────┘              │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++-----------------------------------------------------------------------------+
+|                     SECURE IMAGE VERIFICATION SYSTEM                         |
++-----------------------------------------------------------------------------+
+|                                                                              |
+|   Original Image --> CCM Encryption --> Encrypted Image --> SHA-256 Hash     |
+|                           |                                     |            |
+|                           v                                     v            |
+|                    Encryption Key                         RSA Signature      |
+|                           |                                     |            |
+|                           v                                     v            |
+|                    Shamir's (3,5) SSS            Hyperledger Fabric          |
+|                                                  Blockchain Storage          |
+|                                                                              |
++-----------------------------------------------------------------------------+
 ```
+
+## Dataset Information
+
+The experimental evaluation uses an extended test dataset (n=60 images across 7 categories):
+
+| Category | Source | Count | Resolution | License |
+|----------|--------|-------|------------|---------|
+| Standard Benchmarks | [USC-SIPI Image Database](https://sipi.usc.edu/database/) | 10 | 256x256 - 512x512 | Public domain |
+| Medical Grayscale | [NIH ChestX-ray14](https://nihcc.app.box.com/v/ChestXray-NIHCC) | 10 | 512x512 - 2048x2048 | CC0 1.0 |
+| Satellite Imagery | [Copernicus Sentinel-2](https://dataspace.copernicus.eu/) | 5 | 1024x1024 - 4096x4096 | Copernicus Open Access |
+| Color Standard | [USC-SIPI Image Database](https://sipi.usc.edu/database/) | 15 | 512x512 | Public domain |
+| Medical Color | [ISIC Archive](https://www.isic-archive.com/) | 10 | 1024x1024 | CC-BY-NC |
+| Document Color | Synthetically generated | 5 | 1024x768 | N/A |
+| Synthetic Patterns | Programmatically generated | 5 | 512x512 | N/A |
+
+Standard test images include: Airplane, Cameraman, Baboon, Peppers, Mandrill, Boat, Goldhill.
+
+## Code Information
+
+| Component | Language | Directory | Description |
+|-----------|----------|-----------|-------------|
+| CCM Encryption | Python | `src/encryption/` | Chaotic Cat Map encryption with 256-bit key space |
+| C4 Protocol | Python | `src/encryption/c4_protocol.py` | Cross-channel chaotic coupling for color images |
+| Key Rotation | Python | `src/encryption/key_rotation.py` | On-chain key evolution mechanism |
+| Secret Sharing | Python | `src/secret_sharing/` | Shamir's SSS and Adaptive Threshold Algorithm |
+| Digital Signature | Python | `src/signature/` | RSA-2048 signing and verification |
+| Fabric Client | Python | `src/blockchain/` | Hyperledger Fabric SDK integration |
+| Smart Contract | Go | `chaincode/` | Chaincode for image metadata storage |
+| Network Config | YAML/Docker | `network/`, `docker/` | Fabric network configuration |
+| Tests | Python | `tests/` | Unit tests and benchmarks |
 
 ## Prerequisites
 
@@ -70,7 +87,7 @@ pip install -r requirements.txt
 curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.5.0 1.5.7
 ```
 
-## Quick Start
+## Usage Instructions
 
 ### 1. Image Encryption
 
@@ -137,59 +154,67 @@ tx_id = client.store_image_metadata(
 )
 ```
 
-## Network Setup
-
-### 1. Generate Cryptographic Materials
+### 5. Network Setup
 
 ```bash
+# Generate cryptographic materials
 cd network
 cryptogen generate --config=./crypto-config.yaml
-```
 
-### 2. Create Channel Artifacts
-
-```bash
+# Create channel artifacts
 configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./channel-artifacts/genesis.block
 configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID secure-images
-```
 
-### 3. Start the Network
-
-```bash
+# Start the network
 docker-compose -f docker-compose.yaml up -d
-```
 
-### 4. Deploy Chaincode
-
-```bash
+# Deploy chaincode
 peer lifecycle chaincode package imagestore.tar.gz --path ./chaincode --lang golang --label imagestore_1.0
 peer lifecycle chaincode install imagestore.tar.gz
 peer lifecycle chaincode approveformyorg --channelID secure-images --name imagestore --version 1.0 --package-id $PACKAGE_ID --sequence 1
 peer lifecycle chaincode commit --channelID secure-images --name imagestore --version 1.0 --sequence 1
 ```
 
+## Methodology
+
+The system follows a multi-layered security approach:
+
+1. **Image Encryption**: The Chaotic Cat Map (CCM) algorithm encrypts images using 256-bit keys. For color images, the Cross-Channel Chaotic Coupling (C4) Protocol ensures inter-channel dependency, achieving 75% reduction in inter-channel correlation.
+
+2. **Key Distribution**: Shamir's Secret Sharing splits the encryption key into n shares with a (t,n) threshold. The Adaptive Threshold Algorithm dynamically adjusts the threshold based on real-time risk assessment.
+
+3. **Digital Signatures**: RSA-2048 signatures provide non-repudiation. Each shareholder signs the SHA-256 hash of the encrypted image.
+
+4. **Blockchain Verification**: Hyperledger Fabric stores encrypted image hashes, shareholder signatures and timestamps as immutable records. The Raft consensus mechanism ensures consistency across 2 organizations with 8 peer nodes.
+
+5. **Key Rotation**: On-Chain Key Evolution enables key rotation without share redistribution, providing forward and backward secrecy.
+
 ## Security Parameters
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
+| CCM Key Space | 256 bits | Encryption key size |
 | CCM Iterations | 10 | Number of Cat Map iterations |
 | RSA Key Size | 2048 bits | Digital signature key size |
 | SHA Hash | SHA-256 | Hashing algorithm |
 | SSS Threshold | (3,5) | 3 of 5 shares required |
 | Fabric Endorsement | 2 of 3 | Required endorsements |
+| Fabric Version | 2.5.4 | Hyperledger Fabric version |
+| Consensus | Raft (CFT) | Ordering service consensus |
 
 ## Performance Metrics
 
-Based on experimental results:
+Based on experimental results (n=60 images):
 
-| Metric | Grayscale | Color (RGB) |
-|--------|-----------|-------------|
+| Metric | Grayscale (n=45) | Color/C4 (n=15) |
+|--------|-------------------|-----------------|
 | Entropy | 7.9974 | 7.9993 |
-| NPCR | 99.61% | 99.60% |
-| UACI | 33.46% | 33.41% |
-| Horizontal Correlation | 0.0012 | 0.0089 |
-| Vertical Correlation | 0.0008 | 0.0124 |
-| Diagonal Correlation | 0.0015 | 0.0098 |
+| NPCR | 99.60% | 99.61% |
+| UACI | 33.48% | 33.49% |
+| Correlation (H) | < 0.003 | < 0.009 |
+| Correlation (V) | < 0.003 | < 0.007 |
+| Blockchain Write (P50) | 1850 ms | 1850 ms |
+| Blockchain Read (P50) | 156 ms | 156 ms |
 
 ## Testing
 
@@ -197,14 +222,37 @@ Based on experimental results:
 # Run all tests
 pytest tests/
 
-# Run specific test
+# Run specific tests
 pytest tests/test_encryption.py -v
+pytest tests/test_c4_protocol.py -v
+pytest tests/test_adaptive_threshold.py -v
+pytest tests/test_key_rotation.py -v
+pytest tests/test_secret_sharing.py -v
+pytest tests/test_signature.py -v
+
+# Run benchmarks
+python tests/benchmark.py
+```
+
+## Citation
+
+If you use this code in your research, please cite:
+
+```bibtex
+@article{tuncer2025chaotic,
+  author = {Tuncer, Sefa and Karakuzu, Cihan},
+  title = {Chaotic Image Encryption and Verification with Blockchain Coordinated Threshold Secret Sharing},
+  journal = {PeerJ Computer Science},
+  year = {2025},
+  note = {Under review}
+}
 ```
 
 ## License
 
-This code is provided under MIT License for academic and research purposes.
+This code is provided under the [MIT License](LICENSE) for academic and research purposes.
 
 ## Contact
 
-For questions regarding the implementation, please contact the corresponding author.
+For questions regarding the implementation, please contact the corresponding author:
+- **Sefa Tuncer** - tuncersefa@gmail.com
